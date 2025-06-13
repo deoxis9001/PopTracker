@@ -216,6 +216,8 @@ void MapWidget::render(Renderer renderer, int offX, int offY)
                         drawDiamondGlow(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, c);
                     else if (pos.shape == Shape::TRAPEZOID)
                         drawTrapezoidGlow(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, c);
+                    else if (pos.shape == Shape::CIRCLE)
+                        drawCircleGlow(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, c);
                     else
                         drawRectGlow(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, c);
                 } else if (!SplitRects || state<0 || state>=countOf(triangleValues)) {
@@ -227,6 +229,9 @@ void MapWidget::render(Renderer renderer, int offX, int offY)
                                 c, c, c, c);
                     else if (pos.shape == Shape::TRAPEZOID)
                         drawTrapezoid(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, borderScreenSize,
+                                c, c, c, c);
+                    else if (pos.shape == Shape::CIRCLE)
+                        drawCircle(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, borderScreenSize,
                                 c, c, c, c);
                     else
                         drawRect(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, borderScreenSize,

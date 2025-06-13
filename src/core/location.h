@@ -19,6 +19,7 @@ public:
             RECT,
             DIAMOND,
             TRAPEZOID,
+			CIRCLE,
         };
 
         static Shape ShapeFromString(const std::string& s) {
@@ -28,6 +29,8 @@ public:
                 return Shape::DIAMOND;
             if (s == "trapezoid")
                 return Shape::TRAPEZOID;
+            if (s == "circle")
+                return Shape::CIRCLE;
             return Shape::UNSPECIFIED;
         }
 
