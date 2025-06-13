@@ -19,4 +19,9 @@ void drawTrapezoid(Renderer renderer, Position pos, Size size, int borderWidth,
 
 void drawTrapezoidGlow(Renderer renderer, Position pos, Size size, Widget::Color c);
 
+void drawCircle(Renderer renderer, Position pos, Size size, int borderWidth,
+        Widget::Color topC, Widget::Color leftC, Widget::Color botC, Widget::Color rightC);
+
+void drawCircleGlow(Renderer renderer, Position pos, Size size, Widget::Color c);
+
 } // namespace Ui

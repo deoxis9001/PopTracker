@@ -12,6 +12,75 @@ static SDL_Texture* getGlowTexture(Renderer renderer)
     return tex;
 }
 
+void drawCircle(Renderer renderer, Position pos, Size size, int borderWidth,
+        Widget::Color tC, Widget::Color lC, Widget::Color bC, Widget::Color rC)
+{
+    const int segmentsPerQuarter = 16; // 64 segments total = cercle lisse
+    const int totalSegments = segmentsPerQuarter * 4;
+
+    float centerX = pos.left + size.width / 2.0f;
+    float centerY = pos.top + size.height / 2.0f;
+    float radius = std::min(size.width, size.height) / 2.0f;
+    float outerRadius = radius + borderWidth;
+
+    bool hasAlpha = tC.a != 0xff || lC.a != 0xff || bC.a != 0xff || rC.a != 0xff;
+
+    SDL_Color top = {tC.r, tC.g, tC.b, tC.a};
+    SDL_Color left = {lC.r, lC.g, lC.b, lC.a};
+    SDL_Color bottom = {bC.r, bC.g, bC.b, bC.a};
+    SDL_Color right = {rC.r, rC.g, rC.b, rC.a};
+    SDL_Color borderColor = {0, 0, 0, 255};
+
+    // Bordure
+    if (borderWidth > 0) {
+        std::vector<SDL_Vertex> borderVerts;
+        std::vector<int> borderIndices;
+
+        borderVerts.push_back({{centerX, centerY}, borderColor, {0, 0}});
+        for (int i = 0; i <= totalSegments; ++i) {
+            float angle = i * 2.0f * M_PI / totalSegments;
+            float x = centerX + cosf(angle) * outerRadius;
+            float y = centerY + sinf(angle) * outerRadius;
+            borderVerts.push_back({{x, y}, borderColor, {0, 0}});
+
+            if (i > 0) {
+                borderIndices.push_back(0);
+                borderIndices.push_back(i);
+                borderIndices.push_back(i + 1);
+            }
+        }
+
+        SDL_RenderGeometry(renderer, nullptr, borderVerts.data(), borderVerts.size(), borderIndices.data(), borderIndices.size());
+    }
+
+    // Cercle découpé en 4 quarts colorés
+    std::vector<SDL_Vertex> verts;
+    std::vector<int> indices;
+    verts.push_back({{centerX, centerY}, top, {0, 0}}); // index 0
+
+    for (int i = 0; i <= totalSegments; ++i) {
+        float angle = i * 2.0f * M_PI / totalSegments;
+        float x = centerX + cosf(angle) * radius;
+        float y = centerY + sinf(angle) * radius;
+
+        SDL_Color col;
+        if (i <= segmentsPerQuarter) col = top;
+        else if (i <= 2 * segmentsPerQuarter) col = right;
+        else if (i <= 3 * segmentsPerQuarter) col = bottom;
+        else col = left;
+
+        verts.push_back({{x, y}, col, {0, 0}});
+
+        if (i > 0) {
+            indices.push_back(0);
+            indices.push_back(i);
+            indices.push_back(i + 1);
+        }
+    }
+
+    SDL_RenderGeometry(renderer, nullptr, verts.data(), verts.size(), indices.data(), indices.size());
+}
+
 void drawRect(Renderer renderer, Position pos, Size size, int borderWidth,
         Widget::Color topC, Widget::Color leftC, Widget::Color botC, Widget::Color rightC)
 {
@@ -534,75 +603,6 @@ void drawTrapezoidGlow(Renderer renderer, Position pos, Size size, Widget::Color
     if (!tex)
         return;
     SDL_RenderGeometry(renderer, tex, verts, std::size(verts), indices, std::size(indices));
-}
-
-void drawCircle(Renderer renderer, Position pos, Size size, int borderWidth,
-        Widget::Color tC, Widget::Color lC, Widget::Color bC, Widget::Color rC)
-{
-    const int segmentsPerQuarter = 16; // 64 segments total = cercle lisse
-    const int totalSegments = segmentsPerQuarter * 4;
-
-    float centerX = pos.left + size.width / 2.0f;
-    float centerY = pos.top + size.height / 2.0f;
-    float radius = std::min(size.width, size.height) / 2.0f;
-    float outerRadius = radius + borderWidth;
-
-    bool hasAlpha = tC.a != 0xff || lC.a != 0xff || bC.a != 0xff || rC.a != 0xff;
-
-    SDL_Color top = {tC.r, tC.g, tC.b, tC.a};
-    SDL_Color left = {lC.r, lC.g, lC.b, lC.a};
-    SDL_Color bottom = {bC.r, bC.g, bC.b, bC.a};
-    SDL_Color right = {rC.r, rC.g, rC.b, rC.a};
-    SDL_Color borderColor = {0, 0, 0, 255};
-
-    // Bordure
-    if (borderWidth > 0) {
-        std::vector<SDL_Vertex> borderVerts;
-        std::vector<int> borderIndices;
-
-        borderVerts.push_back({{centerX, centerY}, borderColor, {0, 0}});
-        for (int i = 0; i <= totalSegments; ++i) {
-            float angle = i * 2.0f * M_PI / totalSegments;
-            float x = centerX + cosf(angle) * outerRadius;
-            float y = centerY + sinf(angle) * outerRadius;
-            borderVerts.push_back({{x, y}, borderColor, {0, 0}});
-
-            if (i > 0) {
-                borderIndices.push_back(0);
-                borderIndices.push_back(i);
-                borderIndices.push_back(i + 1);
-            }
-        }
-
-        SDL_RenderGeometry(renderer, nullptr, borderVerts.data(), borderVerts.size(), borderIndices.data(), borderIndices.size());
-    }
-
-    // Cercle découpé en 4 quarts colorés
-    std::vector<SDL_Vertex> verts;
-    std::vector<int> indices;
-    verts.push_back({{centerX, centerY}, top, {0, 0}}); // index 0
-
-    for (int i = 0; i <= totalSegments; ++i) {
-        float angle = i * 2.0f * M_PI / totalSegments;
-        float x = centerX + cosf(angle) * radius;
-        float y = centerY + sinf(angle) * radius;
-
-        SDL_Color col;
-        if (i <= segmentsPerQuarter) col = top;
-        else if (i <= 2 * segmentsPerQuarter) col = right;
-        else if (i <= 3 * segmentsPerQuarter) col = bottom;
-        else col = left;
-
-        verts.push_back({{x, y}, col, {0, 0}});
-
-        if (i > 0) {
-            indices.push_back(0);
-            indices.push_back(i);
-            indices.push_back(i + 1);
-        }
-    }
-
-    SDL_RenderGeometry(renderer, nullptr, verts.data(), verts.size(), indices.data(), indices.size());
 }
 
 void drawCircleGlow(Renderer renderer, Position pos, Size size, Widget::Color color)

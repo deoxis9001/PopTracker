@@ -250,6 +250,9 @@ void MapWidget::render(Renderer renderer, int offX, int offY)
                     else if (pos.shape == Shape::TRAPEZOID)
                         drawTrapezoid(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, borderScreenSize,
                                 topC, leftC, botC, rightC);
+                    else if (pos.shape == Shape::CIRCLE)
+                        drawCircle(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, borderScreenSize,
+                                topC, leftC, botC, rightC);
                     else
                         drawRect(renderer, {innerx, innery}, {locScreenInnerW, locScreenInnerH}, borderScreenSize,
                                 topC, leftC, botC, rightC);
